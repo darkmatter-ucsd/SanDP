@@ -27,8 +27,19 @@ def load_dataframe(filename):
     
     # add alias
     data['drift_time'] = (data['S2sPeak'] - data['S1sPeak']) * 4 / 1000  # us
+    data['r'] = np.sqrt(data['S2sPosX']**2 + data['S2sPosY']**2)
+    
+    # convert unit
     data['S2sLowWidth'] = data['S2sLowWidth'] * 4 / 1000  # us
     data['S2sWidth'] = data['S2sWidth'] * 4 / 1000  # us
-    data['r'] = np.sqrt(data['S2sPosX']**2 + data['S2sPosY']**2)
+    data['S2sPeak'] *= 4/1000  #  us
+    data['S2sRiseTime'] *= 4/1000  #  us
+    data['S2sDropTime'] *= 4/1000  #  us
+    
+    data['S1sPeak'] *= 4  #  ns
+    data['S1sWidth'] *= 4  #  ns
+    data['S1sLowWidth'] *= 4  #  ns
+    data['S1sRiseTime'] *= 4  #  ns
+    data['S1sDropTime'] *= 4  #  ns
     
     return data

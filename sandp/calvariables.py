@@ -65,7 +65,6 @@ T1=TTree("T1","")
 #=== Variables for the branches ===#
 EventID=array('i',[0])
 UnixTime=array('l',[0])
-MicroSec=array('i',[0])
 BaseLineSumSigma=array('f',[0.0]) 
 nchannels=array("i",[4])#Summed Baseline STD
 BaseLineChannel=array("f",nchannels[0]*[0.0])                                        #Baseline mean per channel
@@ -88,7 +87,6 @@ S2sPMT=array('f',maxpeaks*[0])  # main s2 size in each PMT
 #=== Branches ===#
 T1.Branch("EventID",EventID,"EventID/I")
 T1.Branch("UnixTime",UnixTime,"UnixTime/L")
-T1.Branch("MicroSec",MicroSec,"MicroSec/I")
 T1.Branch("nchannels",nchannels,"nchannels/I")
 T1.Branch("BaseLineSumSigma",BaseLineSumSigma,"BaseLineSumSigma/F")
 T1.Branch("BaseLineChannel",BaseLineChannel,"BaseLineChannel[nchannels]/F")
@@ -167,8 +165,7 @@ def process(filename, outpath):
         data,channel,Micro=get_raw(event_number,filename)
         data_smooth=smooth(data)
         Time_all += Micro                         ## In MicroSec
-        UnixTime[0] = int (Time_all / 1000000)    ## Back to Sec
-        MicroSec[0] = Time_all % 1000000          ## MicroSec （remainder）
+        UnixTime[0] = Time_all  ## MicroSec
        
         ## Baseline calculation:
         BaseLineSumSigma[0]=np.std(data[:nsamp_base]) 
