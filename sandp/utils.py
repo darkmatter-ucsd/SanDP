@@ -131,8 +131,10 @@ def get_processor_version_name(processor):
         name = 'sandix_v1p1'
     elif processor == 'sandp_test':
         name = 'sandp_test'
+    elif processor == 'sandp_test_nrd':
+        name = 'sandp_test_nrd'
     else:
-        raise ValueError("processor is either 'sandix_v1.1' or 'sandp_test', wanna try again?")
+        raise ValueError("processor is either 'sandix_v1.1', 'sandp_test' or 'sandp_test_nrd', wanna try again?")
 
     return name
 
@@ -193,15 +195,17 @@ def folders_to_path(folder, processor):
     if version_name == 'sandix_v1p1':  # TODO: put this into ini
         base_path = '/home/nilab/10T_Two/Processed/Run21/sandp_v1.1/Co57'
 
-    else:
+    elif version_name == 'sandp_test':
         base_path = '/home/nilab/10T_Two/Processed/Run21/sandp_test/SE_update_s1_width_10/Co57/'
+    else:
+        base_path = '/home/nilab/10T_Two/Processed/Run21/sandp_test/SE_update_s1_width_10_nrd/Co57/'
 
     if isinstance(folder, str):
         path = os.path.join(base_path, folder)
 
     else:
         assert hasattr(folder, '__len__'), "if 'folder' is not a string, then it should be an array or list!"
-        path = [folders_to_path(folder_) for folder_ in folder]
+        path = [folders_to_path(folder_, processor) for folder_ in folder]
 
     return path
 
