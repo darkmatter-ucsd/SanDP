@@ -46,7 +46,7 @@ s2width_upper_limit = int(cfg['peaks']['s2width_upper_limit'])
 nsamp_base = int(cfg['peaks']['nsamp_base'])
 s1_thre_base = int(cfg['peaks']['s1_thre_base'])
 s2_thre_base = int(cfg['peaks']['s2_thre_base'])
-trigger_position = int(cfg['peaks']['trigger_position'])
+# trigger_position = int(cfg['peaks']['trigger_position'])
 
 PMTgain = [float(cfg['gains']['ch0_gain']),
            float(cfg['gains']['ch1_gain']),
@@ -113,7 +113,8 @@ T1.Branch('S2sPMT', S2sPMT, 'S2sPMT[nchannels]/F')
 
 
 # processing the raw_data:
-def process(filename, outpath):
+def process(filename, outpath, config):
+    nsamps = config['window_length']
     outfile = TFile(outpath + '/' + filename[-26:-4] + '.root', "RECREATE")
 
     # Total number of events:
@@ -157,7 +158,7 @@ def process(filename, outpath):
                   + "/" + str(t_left) + " sec ")
 
         ## Go to rawdata !!!:
-        data, channel, Micro = get_raw(event_number, filename)
+        data, channel, Micro = get_raw(event_number, filename, nsamps)
         data_smooth = smooth(data)
         Time_all += Micro  ## In MicroSec
         UnixTime[0] = int(Time_all / 1000000)  ## Back to Sec
