@@ -8,9 +8,14 @@ from sandp import waveform
 from sandp import rawdata
 from sandp import peakproperty
 from sandp import calvariables
+from pymongo import MongoClient
 
 def main():
     parser = argparse.ArgumentParser()
+
+    client = MongoClient('mongodb://sandix:%s@132.239.186.12:27017' % os.environ['MONGO_PASSWORD'])
+    db = client['run']
+    coll = db['data']
     
     ## -------------->
     parser.add_argument(
@@ -76,9 +81,15 @@ def main():
     ###################
     
     if (args.processing):
-        calvariables.process(args.raw_data, args.outdata_path)
+        # get data name from raw_data
+        data_name = ''.join(args.raw_data.split('/')[-1].split('.')[0].split('_')[-1].split('T'))
+        # find sample length from mongodb using data name
+        cursor = coll.find({'run_name': data_name})[0]
+        config = {}
+        config['window_length'] = cursor['window_length']
+        # config['trigger_position'] = cursor['trigger_position']
 
+        calvariables.process(args.raw_data, args.outdata_path, config)
 
-    
 if __name__ == '__main__':
     main()
