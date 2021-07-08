@@ -43,11 +43,10 @@ s1width_upper_limit = int(cfg['peaks']['s1width_upper_limit'])
 s2width_lower_limit = int(cfg['peaks']['s2width_lower_limit'])
 s2width_upper_limit = int(cfg['peaks']['s2width_upper_limit'])
 
-nsamps = int(cfg['peaks']['nsamps'])
 nsamp_base = int(cfg['peaks']['nsamp_base'])
 s1_thre_base = int(cfg['peaks']['s1_thre_base'])
 s2_thre_base = int(cfg['peaks']['s2_thre_base'])
-trigger_position = int(cfg['peaks']['trigger_position'])
+# trigger_position = int(cfg['peaks']['trigger_position'])
 
 PMTgain = [float(cfg['gains']['ch0_gain']),
            float(cfg['gains']['ch1_gain']),
@@ -114,7 +113,8 @@ T1.Branch('S2sPMT', S2sPMT, 'S2sPMT[nchannels]/F')
 
 
 # processing the raw_data:
-def process(filename, outpath):
+def process(filename, outpath, config):
+    nsamps = config['window_length']
     outfile = TFile(outpath + '/' + filename[-26:-4] + '.root', "RECREATE")
 
     # Total number of events:
@@ -158,7 +158,7 @@ def process(filename, outpath):
                   + "/" + str(t_left) + " sec ")
 
         ## Go to rawdata !!!:
-        data, channel, Micro = get_raw(event_number, filename)
+        data, channel, Micro = get_raw(event_number, filename, nsamps)
         data_smooth = smooth(data)
         Time_all += Micro  ## In MicroSec
         UnixTime[0] = int(Time_all / 1000000)  ## Back to Sec
@@ -238,21 +238,23 @@ def process(filename, outpath):
         ## Peak Width and time positions:
         for i in range(NbS1Peaks[0]):
             peak = peak_width(data_smooth, 0.5, S1[S1s_Key[i]])
+            peakhigh = peak_width(data_smooth, 0.9, S1[S1s_Key[i]])
             S1sWidth[i] = peak[2] - peak[0]
             S1sPeak[i] = peak[1]
             peaklow = peak_width(data_smooth, 0.1, S1[S1s_Key[i]])
             S1sLowWidth[i] = peaklow[2] - peaklow[0]
-            S1sRiseTime[i] = peak[0] - peaklow[0]
-            S1sDropTime[i] = peaklow[2] - peak[2]
+            S1sRiseTime[i] = peakhigh[0] - peaklow[0]
+            S1sDropTime[i] = peaklow[2] - peakhigh[2]
 
         for i in range(NbS2Peaks[0]):
             peak = peak_width(data_smooth, 0.5, S2[S2s_Key[i]])
+            peakhigh = peak_width(data_smooth, 0.9, S2[S2s_Key[i]])
             S2sWidth[i] = peak[2] - peak[0]
             S2sPeak[i] = peak[1]
             peaklow = peak_width(data_smooth, 0.1, S2[S2s_Key[i]])
             S2sLowWidth[i] = peaklow[2] - peaklow[0]
-            S2sRiseTime[i] = peak[0] - peaklow[0]
-            S2sDropTime[i] = peaklow[2] - peak[2]
+            S2sRiseTime[i] = peakhigh[0] - peaklow[0]
+            S2sDropTime[i] = peaklow[2] - peakhigh[2]
 
         ## Peak Entropy for noise rejection:
         for i in range(NbS1Peaks[0]):
